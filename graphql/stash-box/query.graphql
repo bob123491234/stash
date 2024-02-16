@@ -28,6 +28,12 @@ fragment StudioFragment on Studio {
 fragment TagFragment on Tag {
   name
   id
+  aliases
+  description
+  parent {
+    name
+    id
+  }
 }
 
 fragment FuzzyDateFragment on FuzzyDate {
@@ -170,6 +176,12 @@ query FindSceneByID($id: ID!) {
 query FindStudio($id: ID, $name: String) {
   findStudio(id: $id, name: $name) {
     ...StudioFragment
+  }
+}
+
+query FindTag($id: ID, $name: String) {
+  findTag(id: $id, name: $name) {
+    ...TagFragment
   }
 }
 

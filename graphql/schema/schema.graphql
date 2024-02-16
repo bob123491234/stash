@@ -127,6 +127,12 @@ type Query {
     input: ScrapeSingleStudioInput!
   ): [ScrapedStudio!]!
 
+  "Scrape for a single tag"
+  scrapeSingleTag(
+    source: ScraperSourceInput!
+    input: ScrapeSingleTagInput!
+  ): [ScrapedTag!]!
+
   "Scrape for a single performer"
   scrapeSinglePerformer(
     source: ScraperSourceInput!
@@ -438,6 +444,8 @@ type Mutation {
   stashBoxBatchPerformerTag(input: StashBoxBatchTagInput!): String!
   "Run batch studio tag task. Returns the job ID."
   stashBoxBatchStudioTag(input: StashBoxBatchTagInput!): String!
+  "Run batch tag tag task. Returns the job ID."
+  stashBoxBatchTagTag(input: StashBoxBatchTagInput!): String!
 
   "Enables DLNA for an optional duration. Has no effect if DLNA is enabled by default"
   enableDLNA(input: EnableDLNAInput!): Boolean!

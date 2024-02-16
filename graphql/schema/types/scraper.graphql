@@ -58,6 +58,9 @@ type ScrapedTag {
   "Set if tag matched"
   stored_id: ID
   name: String!
+  aliases: String!
+  details: String
+  parent: ScrapedTag
 }
 
 type ScrapedScene {
@@ -162,6 +165,13 @@ input ScrapeSingleStudioInput {
   query: String
 }
 
+input ScrapeSingleTagInput {
+  """
+  Query can be either a name or a Stash ID
+  """
+  query: String
+}
+
 input ScrapeSinglePerformerInput {
   "Instructs to query by string"
   query: String
@@ -231,7 +241,7 @@ input StashBoxBatchTagInput {
   exclude_fields: [String!]
   "Refresh items already tagged by StashBox if true. Only tag items with no StashBox tagging if false"
   refresh: Boolean!
-  "If batch adding studios, should their parent studios also be created?"
+  "If batch adding studios or tags, should their parents also be created?"
   createParent: Boolean!
   "If set, only tag these ids"
   ids: [ID!]

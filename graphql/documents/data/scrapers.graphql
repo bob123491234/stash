@@ -13,6 +13,21 @@ fragment ScrapedStudioData on ScrapedStudio {
   remote_site_id
 }
 
+fragment ScrapedTagData on ScrapedTag {
+  stored_id
+  name
+  aliases
+  details
+  parent {
+    stored_id
+    name
+    aliases
+    details
+    remote_site_id
+  }
+  remote_site_id
+}
+
 fragment ScrapedPerformerData on ScrapedPerformer {
   stored_id
   name
@@ -136,6 +151,16 @@ fragment ScrapedSceneStudioData on ScrapedStudio {
 fragment ScrapedSceneTagData on ScrapedTag {
   stored_id
   name
+  aliases
+  details
+  parent {
+    stored_id
+    name
+    aliases
+    details
+    remote_site_id
+  }
+  remote_site_id
 }
 
 fragment ScrapedSceneData on ScrapedScene {
