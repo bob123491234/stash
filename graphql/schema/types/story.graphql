@@ -1,0 +1,154 @@
+type StoryPathsType {
+  screenshot: String # Resolver
+  preview: String # Resolver
+  stream: String # Resolver
+  webp: String # Resolver
+  vtt: String # Resolver
+  sprite: String # Resolver
+  funscript: String # Resolver
+  interactive_heatmap: String # Resolver
+  caption: String # Resolver
+}
+
+type Story {
+  id: ID!
+  title: String
+  tag_line: String
+  code: String
+  content: String
+  details: String
+  author: String
+  language: String
+  urls: [String!]!
+  date_published: String
+  date_updated: String
+  # rating expressed as 1-100
+  rating100: Int
+  organized: Boolean!
+  o_counter: Int
+  created_at: Time!
+  updated_at: Time!
+  "The last time play count was updated"
+  last_read_at: Time
+  "The location a story was left at"
+  resume_position: Float
+  "The total time a story has been read"
+  read_duration: Float
+  "The number ot times a story has been played"
+  read_count: Int
+
+  "Times a story was played"
+  play_history: [Time!]!
+  "Times the o counter was incremented"
+  o_history: [Time!]!
+
+  bookmarks: [Bookmarks!]!
+  studio: Studio
+  tags: [Tag!]!
+  performers: [Performer!]!
+}
+
+
+input StoryCreateInput {
+  title: String
+  code: String
+  content: String
+  details: String
+  author: String
+  urls: [String!]
+  date_published: String
+  date_updated: String
+  # rating expressed as 1-100
+  rating100: Int
+  organized: Boolean
+  studio_id: ID
+  gallery_ids: [ID!]
+  performer_ids: [ID!]
+  tag_ids: [ID!]
+  "This should be a URL or a base64 encoded data URL"
+  front_image: String
+  "This should be a URL or a base64 encoded data URL"
+  back_image: String
+}
+
+input StoryUpdateInput {
+  clientMutationId: String
+  id: ID!
+  title: String
+  code: String
+  content: String
+  details: String
+  author: String
+  urls: [String!]
+  date_published: String
+  date_updated: String
+  # rating expressed as 1-100
+  rating100: Int
+  organized: Boolean
+  studio_id: ID
+  gallery_ids: [ID!]
+  performer_ids: [ID!]
+  tag_ids: [ID!]
+  "This should be a URL or a base64 encoded data URL"
+  front_image: String
+  "This should be a URL or a base64 encoded data URL"
+  back_image: String
+
+  "The location a story was left at"
+  resume_position: Float
+  "The total time a story has been read"
+  read_duration: Float
+}
+
+enum BulkUpdateIdMode {
+  SET
+  ADD
+  REMOVE
+}
+
+input BulkUpdateIds {
+  ids: [ID!]
+  mode: BulkUpdateIdMode!
+}
+
+input BulkStoryUpdateInput {
+  clientMutationId: String
+  ids: [ID!]
+  title: String
+  code: String
+  details: String
+  author: String
+  urls: BulkUpdateStrings
+  date_published: String
+  date_updated: String
+  # rating expressed as 1-100
+  rating100: Int
+  organized: Boolean
+  studio_id: ID
+  performer_ids: BulkUpdateIds
+  tag_ids: BulkUpdateIds
+}
+
+input StoryDestroyInput {
+  id: ID!
+  delete_file: Boolean
+}
+
+input StoriesDestroyInput {
+  ids: [ID!]!
+  delete_file: Boolean
+}
+
+type FindStoriesResultType {
+  count: Int!
+  "Total duration in seconds"
+  duration: Float!
+  "Total file size in bytes"
+  filesize: Float!
+  stories: [Story!]!
+}
+
+type HistoryMutationResult {
+  count: Int!
+  history: [Time!]!
+}

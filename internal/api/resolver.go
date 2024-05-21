@@ -66,6 +66,9 @@ func (r *Resolver) Scene() SceneResolver {
 func (r *Resolver) Image() ImageResolver {
 	return &imageResolver{r}
 }
+func (r *Resolver) Story() StoryResolver {
+	return &storyResolver{r}
+}
 func (r *Resolver) SceneMarker() SceneMarkerResolver {
 	return &sceneMarkerResolver{r}
 }
@@ -110,6 +113,7 @@ type performerResolver struct{ *Resolver }
 type sceneResolver struct{ *Resolver }
 type sceneMarkerResolver struct{ *Resolver }
 type imageResolver struct{ *Resolver }
+type storyResolver struct{ *Resolver }
 type studioResolver struct{ *Resolver }
 type movieResolver struct{ *Resolver }
 type tagResolver struct{ *Resolver }
@@ -170,6 +174,7 @@ func (r *queryResolver) Stats(ctx context.Context) (*StatsResultType, error) {
 		repo := r.repository
 		sceneQB := repo.Scene
 		imageQB := repo.Image
+		storyQB := repo.Story
 		galleryQB := repo.Gallery
 		studioQB := repo.Studio
 		performerQB := repo.Performer
@@ -199,6 +204,16 @@ func (r *queryResolver) Stats(ctx context.Context) (*StatsResultType, error) {
 		}
 
 		imageSize, err := imageQB.Size(ctx)
+		if err != nil {
+			return err
+		}
+
+		storyCount, err := storyQB.Count(ctx)
+		if err != nil {
+			return err
+		}
+
+		storiesSize, err := storyQB.Size(ctx)
 		if err != nil {
 			return err
 		}
@@ -259,6 +274,8 @@ func (r *queryResolver) Stats(ctx context.Context) (*StatsResultType, error) {
 			ScenesDuration:    scenesDuration,
 			ImageCount:        imageCount,
 			ImagesSize:        imageSize,
+			StoryCount:        storyCount,
+			StoriesSize:       storiesSize,
 			GalleryCount:      galleryCount,
 			PerformerCount:    performersCount,
 			StudioCount:       studiosCount,

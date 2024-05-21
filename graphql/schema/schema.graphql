@@ -75,6 +75,15 @@ type Query {
     ids: [ID!]
   ): FindStudiosResultType!
 
+  "Find a story by ID"
+  findStory(id: ID!): Story
+  "A function which queries Story objects"
+  findStories(
+    story_filter: StoryFilterType
+    filter: FindFilterType
+    ids: [ID!]
+  ): FindStoriesResultType!
+
   "Find a movie by ID"
   findMovie(id: ID!): Movie
   "A function which queries Movie objects"
@@ -157,6 +166,12 @@ type Query {
     input: ScrapeSingleMovieInput!
   ): [ScrapedMovie!]!
 
+  "Scrape for a single story"
+  scrapeSingleStory(
+    source: ScraperSourceInput!
+    input: ScrapeSingleStoryInput!
+  ): [ScrapedStory!]!
+
   "Scrapes content based on a URL"
   scrapeURL(url: String!, ty: ScrapeContentType!): ScrapedContent
 
@@ -168,6 +183,8 @@ type Query {
   scrapeGalleryURL(url: String!): ScrapedGallery
   "Scrapes a complete movie record based on a URL"
   scrapeMovieURL(url: String!): ScrapedMovie
+  "Scrapes a complete story record based on a URL"
+  scrapeStoryURL(url: String!): ScrapedStory
 
   # Plugins
   "List loaded plugins"
@@ -289,6 +306,32 @@ type Mutation {
   imageDecrementO(id: ID!): Int!
   "Resets the o-counter for a image to 0. Returns the new value"
   imageResetO(id: ID!): Int!
+
+  storyCreate(input: StoryCreateInput!): Story
+  storyUpdate(input: StoryUpdateInput!): Story
+  storyMerge(input: StoryMergeInput!): Story
+  bulkStoryUpdate(input: BulkStoryUpdateInput!): [Story!]
+  storyDestroy(input: StoryDestroyInput!): Boolean!
+  storiesDestroy(input: StoriesDestroyInput!): Boolean!
+  storiesUpdate(input: [StoryUpdateInput!]!): [Story]
+
+  "Increments the o-counter for a story. Uses the current time if none provided."
+  storyAddO(id: ID!, times: [Timestamp!]): HistoryMutationResult!
+  "Decrements the o-counter for a story, removing the last recorded time if specific time not provided. Returns the new value"
+  storyDeleteO(id: ID!, times: [Timestamp!]): HistoryMutationResult!
+
+  "Resets the o-counter for a story to 0. Returns the new value"
+  storyResetO(id: ID!): Int!
+
+  "Sets the resume time point (if provided) and adds the provided duration to the story's read duration"
+  storySaveActivity(id: ID!, resume_time: Float, playDuration: Float): Boolean!
+
+  "Increments the read count for the story. Uses the current time if none provided."
+  storyAddRead(id: ID!, times: [Timestamp!]): HistoryMutationResult!
+  "Decrements the read count for the story, removing the specific times or the last recorded time if not provided."
+  storyDeleteRead(id: ID!, times: [Timestamp!]): HistoryMutationResult!
+  "Resets the read count for a story to 0. Returns the new play count value."
+  storyResetReadCount(id: ID!): Int!
 
   galleryCreate(input: GalleryCreateInput!): Gallery
   galleryUpdate(input: GalleryUpdateInput!): Gallery
