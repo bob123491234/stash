@@ -20,6 +20,7 @@ import { ExportDialog } from "../Shared/ExportDialog";
 import { DeleteEntityDialog } from "../Shared/DeleteEntityDialog";
 import { StudioTagger } from "../Tagger/studios/StudioTagger";
 import { StudioCardGrid } from "./StudioCardGrid";
+import { EditStudiosDialog } from "./EditStudiosDialog";
 
 const StudioItemList = makeItemList({
   filterMode: GQL.FilterMode.Studios,
@@ -162,6 +163,13 @@ export const StudioList: React.FC<IStudioList> = ({
     );
   }
 
+  function renderEditDialog(
+    selectedStudios: GQL.SlimStudioDataFragment[],
+    onClose: (confirmed: boolean) => void
+  ) {
+    return <EditStudiosDialog selected={selectedStudios} onClose={onClose} />;
+  }
+
   function renderDeleteDialog(
     selectedStudios: GQL.SlimStudioDataFragment[],
     onClose: (confirmed: boolean) => void
@@ -187,6 +195,7 @@ export const StudioList: React.FC<IStudioList> = ({
       addKeybinds={addKeybinds}
       renderContent={renderContent}
       renderDeleteDialog={renderDeleteDialog}
+      renderEditDialog={renderEditDialog}
     />
   );
 };

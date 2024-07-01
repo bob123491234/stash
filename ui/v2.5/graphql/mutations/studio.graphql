@@ -17,3 +17,9 @@ mutation StudioDestroy($id: ID!) {
 mutation StudiosDestroy($ids: [ID!]!) {
   studiosDestroy(ids: $ids)
 }
+
+mutation BulkStudioUpdate($input: BulkStudioUpdateInput!) {
+  bulkStudioUpdate(input: $input) {
+    ...StudioData
+  }
+}

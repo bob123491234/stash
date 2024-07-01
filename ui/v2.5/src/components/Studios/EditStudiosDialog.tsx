@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useBulkTagUpdate } from "src/core/StashService";
+import { useBulkStudioUpdate } from "src/core/StashService";
 import * as GQL from "src/core/generated-graphql";
+import { StudioSelect } from "src/components/Shared/Select";
 import { ModalComponent } from "../Shared/Modal";
 import { useToast } from "src/hooks/Toast";
 import { MultiSet } from "../Shared/MultiSet";
 import {
+  getAggregateStudioId,
   getAggregateState,
   getAggregateStateObject,
 } from "src/utils/bulkUpdate";
@@ -14,21 +16,21 @@ import { IndeterminateCheckbox } from "../Shared/IndeterminateCheckbox";
 import { BulkUpdateTextInput } from "../Shared/BulkUpdateTextInput";
 import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 
-function Tags(props: {
+function Studios(props: {
   isUpdating: boolean;
   controlId: string;
   messageId: string;
-  existingTagIds: string[] | undefined;
-  tagIDs: GQL.BulkUpdateIds;
-  setTagIDs: (value: React.SetStateAction<GQL.BulkUpdateIds>) => void;
+  existingStudioIds: string[] | undefined;
+  studioIDs: GQL.BulkUpdateIds;
+  setStudioIDs: (value: React.SetStateAction<GQL.BulkUpdateIds>) => void;
 }) {
   const {
     isUpdating,
     controlId,
     messageId,
-    existingTagIds,
-    tagIDs,
-    setTagIDs,
+    existingStudioIds,
+    studioIDs,
+    setStudioIDs,
   } = props;
 
   return (
@@ -37,84 +39,77 @@ function Tags(props: {
         <FormattedMessage id={messageId} />
       </Form.Label>
       <MultiSet
-        type="tags"
+        type="studios"
         disabled={isUpdating}
         onUpdate={(itemIDs) =>
-          setTagIDs((existing) => ({ ...existing, ids: itemIDs }))
+          setStudioIDs((existing) => ({ ...existing, ids: itemIDs }))
         }
         onSetMode={(newMode) =>
-          setTagIDs((existing) => ({ ...existing, mode: newMode }))
+          setStudioIDs((existing) => ({ ...existing, mode: newMode }))
         }
-        existingIds={existingTagIds ?? []}
-        ids={tagIDs.ids ?? []}
-        mode={tagIDs.mode}
+        existingIds={existingStudioIds ?? []}
+        ids={studioIDs.ids ?? []}
+        mode={studioIDs.mode}
       />
     </Form.Group>
   );
 }
 
 interface IListOperationProps {
-  selected: GQL.TagDataFragment[];
+  selected: GQL.SlimStudioDataFragment[];
   onClose: (applied: boolean) => void;
 }
 
-const tagFields = ["favorite", "description", "ignore_auto_tag"];
+const studioFields = ["favorite", "details", "ignore_auto_tag"];
 
-export const EditTagsDialog: React.FC<IListOperationProps> = (
+export const EditStudiosDialog: React.FC<IListOperationProps> = (
   props: IListOperationProps
 ) => {
   const intl = useIntl();
   const Toast = useToast();
 
-  const [parentTagIDs, setParentTagIDs_] = useState<GQL.BulkUpdateIds>({
-    mode: GQL.BulkUpdateIdMode.Add,
-  });
+  const [parentStudioID, setParentStudioID_] = useState<string>();
 
-  function setParentTagIDs(value: React.SetStateAction<GQL.BulkUpdateIds>) {
+  function setParentStudioID(value: React.SetStateAction<GQL.BulkUpdateIds>) {
     console.log(value);
-    setParentTagIDs_(value);
+    setParentStudioID_(value);
   }
 
-  const [existingParentTagIds, setExistingParentTagIds] = useState<string[]>();
+  const [existingParentStudioId, setExistingParentStudioId] = useState<string[]>();
 
-  const [childTagIDs, setChildTagIDs] = useState<GQL.BulkUpdateIds>({
-    mode: GQL.BulkUpdateIdMode.Add,
-  });
-  const [existingChildTagIds, setExistingChildTagIds] = useState<string[]>();
+  const [updateInput, setUpdateInput] = useState<GQL.BulkStudioUpdateInput>({});
 
-  const [updateInput, setUpdateInput] = useState<GQL.BulkTagUpdateInput>({});
-
-  const [updateTags] = useBulkTagUpdate(getTagInput());
+  const [updateStudios] = useBulkStudioUpdate(getStudioInput());
 
   // Network state
   const [isUpdating, setIsUpdating] = useState(false);
 
-  function setUpdateField(input: Partial<GQL.BulkTagUpdateInput>) {
+  function setUpdateField(input: Partial<GQL.BulkStudioUpdateInput>) {
     setUpdateInput({ ...updateInput, ...input });
   }
 
-  function getTagInput(): GQL.BulkTagUpdateInput {
-    const tagInput: GQL.BulkTagUpdateInput = {
-      ids: props.selected.map((tag) => {
-        return tag.id;
+  function getStudioInput(): GQL.BulkStudioUpdateInput {
+    const aggregateParentStudioId = getAggregateStudioId(props.selected);
+    
+    const studioInput: GQL.BulkStudioUpdateInput = {
+      ids: props.selected.map((studio) => {
+        return studio.id;
       }),
       ...updateInput,
-      parent_ids: parentTagIDs,
-      child_ids: childTagIDs,
     };
 
-    return tagInput;
+    return studioInput;
   }
 
   async function onSave() {
     setIsUpdating(true);
     try {
-      await updateTags();
+      await updateStudios();
       Toast.success(
         intl.formatMessage(
           { id: "toast.updated_entity" },
           {
-            entity: intl.formatMessage({ id: "tags" }).toLocaleLowerCase(),
+            entity: intl.formatMessage({ id: "studios" }).toLocaleLowerCase(),
           }
         )
       );
@@ -126,29 +121,23 @@ export const EditTagsDialog: React.FC<IListOperationProps> = (
   }
 
   useEffect(() => {
-    const updateState: GQL.BulkTagUpdateInput = {};
+    const updateState: GQL.BulkStudioUpdateInput = {};
 
     const state = props.selected;
-    let updateParentTagIds: string[] = [];
-    let updateChildTagIds: string[] = [];
+    let updateParentStudioIds: string[] = [];
     let first = true;
 
-    state.forEach((tag: GQL.TagDataFragment) => {
-      getAggregateStateObject(updateState, tag, tagFields, first);
+    state.forEach((studio: GQL.StudioDataFragment) => {
+      getAggregateStateObject(updateState, studio, studioFields, first);
 
-      const thisParents = (tag.parents ?? []).map((t) => t.id).sort();
-      updateParentTagIds =
-        getAggregateState(updateParentTagIds, thisParents, first) ?? [];
-
-      const thisChildren = (tag.children ?? []).map((t) => t.id).sort();
-      updateChildTagIds =
-        getAggregateState(updateChildTagIds, thisChildren, first) ?? [];
+      const thisParents = (studio.parents ?? []).map((t) => t.id).sort();
+      updateParentStudioIds =
+        getAggregateState(updateParentStudioIds, thisParents, first) ?? [];
 
       first = false;
     });
 
-    setExistingParentTagIds(updateParentTagIds);
-    setExistingChildTagIds(updateChildTagIds);
+    setExistingParentStudioIds(updateParentStudioIds);
     setUpdateInput(updateState);
   }, [props.selected]);
 
@@ -163,7 +152,6 @@ export const EditTagsDialog: React.FC<IListOperationProps> = (
           <FormattedMessage id={name} />
         </Form.Label>
         <BulkUpdateTextInput
-          as="textarea"
           value={value === null ? "" : value ?? undefined}
           valueChanged={(newValue) => setter(newValue)}
           unsetDisabled={props.selected.length < 2}
@@ -174,12 +162,12 @@ export const EditTagsDialog: React.FC<IListOperationProps> = (
 
   return (
     <ModalComponent
-      dialogClassName="edit-tags-dialog"
+      dialogClassName="edit-studios-dialog"
       show
       icon={faPencilAlt}
       header={intl.formatMessage(
         { id: "actions.edit_entity" },
-        { entityType: intl.formatMessage({ id: "tags" }) }
+        { entityType: intl.formatMessage({ id: "studios" }) }
       )}
       accept={{
         onClick: onSave,
@@ -201,26 +189,17 @@ export const EditTagsDialog: React.FC<IListOperationProps> = (
           />
         </Form.Group>
 
-        {renderTextField("description", updateInput.description, (v) =>
-          setUpdateField({ description: v })
+        {renderTextField("details", updateInput.details, (v) =>
+          setUpdateField({ details: v })
         )}
 
-        <Tags
+        <Studios
           isUpdating={isUpdating}
-          controlId="parent-tags"
-          messageId="parent_tags"
-          existingTagIds={existingParentTagIds}
-          tagIDs={parentTagIDs}
-          setTagIDs={setParentTagIDs}
-        />
-
-        <Tags
-          isUpdating={isUpdating}
-          controlId="sub-tags"
-          messageId="sub_tags"
-          existingTagIds={existingChildTagIds}
-          tagIDs={childTagIDs}
-          setTagIDs={setChildTagIDs}
+          controlId="parent-studio"
+          messageId="parent_studio"
+          existingStudioIds={existingParentStudioId}
+          studioIDs={parentStudioID}
+          setStudioIDs={setParentStudioID}
         />
 
         <Form.Group controlId="ignore-auto-tags">

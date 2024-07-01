@@ -62,3 +62,16 @@ type FindStudiosResultType {
   count: Int!
   studios: [Studio!]!
 }
+
+input BulkStudioUpdateInput {
+  ids: [ID!]
+  details: String
+  url: String
+  aliases: BulkUpdateStrings
+  # rating expressed as 1-100
+  rating100: Int
+  ignore_auto_tag: Boolean
+  favorite: Boolean
+
+  parent_id: ID
+}
