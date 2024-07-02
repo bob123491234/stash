@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { Button, Form } from "react-bootstrap";
 import { FormattedMessage, useIntl } from "react-intl";
 import { DurationInput } from "src/components/Shared/DurationInput";
@@ -47,7 +47,7 @@ import { defaultMaxOptionsShown } from "src/core/config";
 const allMenuItems = [
   { id: "scenes", headingID: "scenes" },
   { id: "images", headingID: "images" },
-  { id: "movies", headingID: "movies" },
+  { id: "groups", headingID: "groups" },
   { id: "markers", headingID: "markers" },
   { id: "galleries", headingID: "galleries" },
   { id: "performers", headingID: "performers" },
@@ -66,6 +66,22 @@ export const SettingsInterfacePanel: React.FC = () => {
     loading,
     error,
   } = useSettings();
+
+  // convert old movies menu item to groups
+  const massageMenuItems = useCallback((menuItems: string[]) => {
+    return menuItems.map((item) => {
+      if (item === "movies") {
+        return "groups";
+      }
+      return item;
+    });
+  }, []);
+
+  const massagedMenuItems = useMemo(() => {
+    if (!iface.menuItems) return iface.menuItems;
+
+    return massageMenuItems(iface.menuItems);
+  }, [iface.menuItems, massageMenuItems]);
 
   const {
     interactive,
@@ -135,6 +151,40 @@ export const SettingsInterfacePanel: React.FC = () => {
     });
   }
 
+  function validateLocaleString(v: string) {
+    if (!v) return;
+    try {
+      JSON.parse(v);
+    } catch (e) {
+      throw new Error(
+        intl.formatMessage(
+          { id: "errors.invalid_json_string" },
+          {
+            error: (e as SyntaxError).message,
+          }
+        )
+      );
+    }
+  }
+
+  function validateJavascriptString(v: string) {
+    if (!v) return;
+    try {
+      // creates a function from the string to validate it but does not execute it
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval
+      new Function(v);
+    } catch (e) {
+      throw new Error(
+        intl.formatMessage(
+          { id: "errors.invalid_javascript_string" },
+          {
+            error: (e as SyntaxError).message,
+          }
+        )
+      );
+    }
+  }
+
   if (error) return <h1>{error.message}</h1>;
   if (loading) return <LoadingIndicator />;
 
@@ -197,8 +247,8 @@ export const SettingsInterfacePanel: React.FC = () => {
           <CheckboxGroup
             groupId="menu-items"
             items={allMenuItems}
-            checkedIds={iface.menuItems ?? undefined}
-            onChange={(v) => saveInterface({ menuItems: v })}
+            checkedIds={massagedMenuItems ?? undefined}
+            onChange={(v) => saveInterface({ menuItems: massageMenuItems(v) })}
           />
         </div>
 
@@ -529,7 +579,7 @@ export const SettingsInterfacePanel: React.FC = () => {
           </div>
           <BooleanSetting
             id="enableMovieBackgroundImage"
-            headingID="movie"
+            headingID="group"
             checked={ui.enableMovieBackgroundImage ?? undefined}
             onChange={(v) => saveUI({ enableMovieBackgroundImage: v })}
           />
@@ -625,8 +675,8 @@ export const SettingsInterfacePanel: React.FC = () => {
             }
           />
           <BooleanSetting
-            id="disableDropdownCreate_movie"
-            headingID="movie"
+            id="disableDropdownCreate_group"
+            headingID="group"
             checked={iface.disableDropdownCreate?.movie ?? undefined}
             onChange={(v) =>
               saveInterface({
@@ -726,16 +776,23 @@ export const SettingsInterfacePanel: React.FC = () => {
           subHeadingID="config.ui.custom_javascript.description"
           value={iface.javascript ?? undefined}
           onChange={(v) => saveInterface({ javascript: v })}
-          renderField={(value, setValue) => (
-            <Form.Control
-              as="textarea"
-              value={value}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setValue(e.currentTarget.value)
-              }
-              rows={16}
-              className="text-input code"
-            />
+          validateChange={validateJavascriptString}
+          renderField={(value, setValue, err) => (
+            <>
+              <Form.Control
+                as="textarea"
+                value={value}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setValue(e.currentTarget.value)
+                }
+                rows={16}
+                className="text-input code"
+                isInvalid={!!err}
+              />
+              <Form.Control.Feedback type="invalid">
+                {err}
+              </Form.Control.Feedback>
+            </>
           )}
           renderValue={() => {
             return <></>;
@@ -756,16 +813,23 @@ export const SettingsInterfacePanel: React.FC = () => {
           subHeadingID="config.ui.custom_locales.description"
           value={iface.customLocales ?? undefined}
           onChange={(v) => saveInterface({ customLocales: v })}
-          renderField={(value, setValue) => (
-            <Form.Control
-              as="textarea"
-              value={value}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setValue(e.currentTarget.value)
-              }
-              rows={16}
-              className="text-input code"
-            />
+          validateChange={validateLocaleString}
+          renderField={(value, setValue, err) => (
+            <>
+              <Form.Control
+                as="textarea"
+                value={value}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setValue(e.currentTarget.value)
+                }
+                rows={16}
+                className="text-input code"
+                isInvalid={!!err}
+              />
+              <Form.Control.Feedback type="invalid">
+                {err}
+              </Form.Control.Feedback>
+            </>
           )}
           renderValue={() => {
             return <></>;

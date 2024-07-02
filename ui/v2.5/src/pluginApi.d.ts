@@ -39,7 +39,6 @@ declare namespace PluginApi {
     const EnableDlnaDocument: { [key: string]: any };
     const ExportObjectsDocument: { [key: string]: any };
     const FilterMode: { [key: string]: any };
-    const FindDefaultFilterDocument: { [key: string]: any };
     const FindDuplicateScenesDocument: { [key: string]: any };
     const FindGalleriesDocument: { [key: string]: any };
     const FindGalleriesForSelectDocument: { [key: string]: any };
@@ -208,7 +207,6 @@ declare namespace PluginApi {
     const SelectPerformerDataFragmentDoc: { [key: string]: any };
     const SelectStudioDataFragmentDoc: { [key: string]: any };
     const SelectTagDataFragmentDoc: { [key: string]: any };
-    const SetDefaultFilterDocument: { [key: string]: any };
     const SetPluginsEnabledDocument: { [key: string]: any };
     const SetupDocument: { [key: string]: any };
     const SlimGalleryDataFragmentDoc: { [key: string]: any };
@@ -254,7 +252,6 @@ declare namespace PluginApi {
     function refetchConfigurationQuery(...args: any[]): any;
     function refetchDirectoryQuery(...args: any[]): any;
     function refetchDlnaStatusQuery(...args: any[]): any;
-    function refetchFindDefaultFilterQuery(...args: any[]): any;
     function refetchFindDuplicateScenesQuery(...args: any[]): any;
     function refetchFindGalleriesForSelectQuery(...args: any[]): any;
     function refetchFindGalleriesQuery(...args: any[]): any;
@@ -349,9 +346,6 @@ declare namespace PluginApi {
     function useDlnaStatusSuspenseQuery(...args: any[]): any;
     function useEnableDlnaMutation(...args: any[]): any;
     function useExportObjectsMutation(...args: any[]): any;
-    function useFindDefaultFilterLazyQuery(...args: any[]): any;
-    function useFindDefaultFilterQuery(...args: any[]): any;
-    function useFindDefaultFilterSuspenseQuery(...args: any[]): any;
     function useFindDuplicateScenesLazyQuery(...args: any[]): any;
     function useFindDuplicateScenesQuery(...args: any[]): any;
     function useFindDuplicateScenesSuspenseQuery(...args: any[]): any;
@@ -681,19 +675,30 @@ declare namespace PluginApi {
     "SceneCard.Details": React.FC<any>;
     "SceneCard.Overlays": React.FC<any>;
     "SceneCard.Image": React.FC<any>;
-    SceneCard: React.FC<any>;
+    PluginSettings: React.FC<any>;
+    Setting: React.FC<any>;
+    SettingGroup: React.FC<any>;
+    BooleanSetting: React.FC<any>;
+    SelectSetting: React.FC<any>;
+    ChangeButtonSetting: React.FC<any>;
+    SettingModal: React.FC<any>;
+    ModalSetting: React.FC<any>;
+    StringSetting: React.FC<any>;
+    NumberSetting: React.FC<any>;
+    StringListSetting: React.FC<any>;
+    ConstantSetting: React.FC<any>;
   };
   namespace utils {
     namespace NavUtils {
       function makePerformerScenesUrl(...args: any[]): any;
       function makePerformerImagesUrl(...args: any[]): any;
       function makePerformerGalleriesUrl(...args: any[]): any;
-      function makePerformerMoviesUrl(...args: any[]): any;
+      function makePerformerGroupsUrl(...args: any[]): any;
       function makePerformersCountryUrl(...args: any[]): any;
       function makeStudioScenesUrl(...args: any[]): any;
       function makeStudioImagesUrl(...args: any[]): any;
       function makeStudioGalleriesUrl(...args: any[]): any;
-      function makeStudioMoviesUrl(...args: any[]): any;
+      function makeStudioGroupsUrl(...args: any[]): any;
       function makeStudioPerformersUrl(...args: any[]): any;
       function makeTagUrl(...args: any[]): any;
       function makeParentTagsUrl(...args: any[]): any;
@@ -705,7 +710,7 @@ declare namespace PluginApi {
       function makeTagImagesUrl(...args: any[]): any;
       function makeScenesPHashMatchUrl(...args: any[]): any;
       function makeSceneMarkerUrl(...args: any[]): any;
-      function makeMovieScenesUrl(...args: any[]): any;
+      function makeGroupScenesUrl(...args: any[]): any;
       function makeChildStudiosUrl(...args: any[]): any;
       function makeGalleryImagesUrl(...args: any[]): any;
     }
@@ -921,6 +926,34 @@ declare namespace PluginApi {
       toast: any;
       success(message: JSX.Element | string): void;
       error(error: unknown): void;
+    };
+
+    function useSettings(): {
+      loading: boolean;
+      error: any | undefined;
+      general: any;
+      interface: any;
+      defaults: any;
+      scraping: any;
+      dlna: any;
+      ui: any;
+      plugins: any;
+
+      advancedMode: boolean;
+
+      // apikey isn't directly settable, so expose it here
+      apiKey: string;
+
+      saveGeneral: (input: any) => void;
+      saveInterface: (input: any) => void;
+      saveDefaults: (input: any) => void;
+      saveScraping: (input: any) => void;
+      saveDLNA: (input: any) => void;
+      saveUI: (input: any) => void;
+      savePluginSettings: (pluginID: string, input: {}) => void;
+      setAdvancedMode: (value: boolean) => void;
+
+      refetch: () => void;
     };
   }
   namespace patch {

@@ -60,7 +60,7 @@ func CodecInit(codec VideoCodec) (args Args) {
 		)
 	case VideoCodecM264:
 		args = append(args,
-			"-prio_speed", "1",
+			"-realtime", "1",
 		)
 	case VideoCodecO264:
 		args = append(args,
@@ -186,7 +186,7 @@ func (o TranscodeOptions) makeStreamArgs(sm *StreamManager) Args {
 
 	codec := o.FileGetCodec(sm, maxTranscodeSize)
 
-	fullhw := sm.config.GetTranscodeHardwareAcceleration() && sm.encoder.hwCanFullHWTranscode(sm.context, o.VideoFile, codec)
+	fullhw := sm.config.GetTranscodeHardwareAcceleration() && sm.encoder.hwCanFullHWTranscode(sm.context, codec, o.VideoFile, maxTranscodeSize)
 	args = sm.encoder.hwDeviceInit(args, codec, fullhw)
 	args = append(args, extraInputArgs...)
 
@@ -198,7 +198,7 @@ func (o TranscodeOptions) makeStreamArgs(sm *StreamManager) Args {
 
 	videoOnly := ProbeAudioCodec(o.VideoFile.AudioCodec) == MissingUnsupported
 
-	videoFilter := sm.encoder.hwMaxResFilter(codec, o.VideoFile.Width, o.VideoFile.Height, maxTranscodeSize, fullhw)
+	videoFilter := sm.encoder.hwMaxResFilter(codec, o.VideoFile, maxTranscodeSize, fullhw)
 
 	args = append(args, o.StreamType.Args(codec, videoFilter, videoOnly)...)
 

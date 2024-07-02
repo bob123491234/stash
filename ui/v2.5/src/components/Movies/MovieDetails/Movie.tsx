@@ -17,19 +17,17 @@ import { LoadingIndicator } from "src/components/Shared/LoadingIndicator";
 import { useLightbox } from "src/hooks/Lightbox/hooks";
 import { ModalComponent } from "src/components/Shared/Modal";
 import { useToast } from "src/hooks/Toast";
-import { MovieScenesPanel } from "./MovieScenesPanel";
+import { GroupScenesPanel } from "./MovieScenesPanel";
 import {
   CompressedMovieDetailsPanel,
-  MovieDetailsPanel,
+  GroupDetailsPanel,
 } from "./MovieDetailsPanel";
-import { MovieEditPanel } from "./MovieEditPanel";
+import { GroupEditPanel } from "./MovieEditPanel";
 import {
   faChevronDown,
   faChevronUp,
-  faLink,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import TextUtils from "src/utils/text";
 import { Icon } from "src/components/Shared/Icon";
 import { RatingSystem } from "src/components/Shared/Rating/RatingSystem";
 import { ConfigurationContext } from "src/hooks/Config";
@@ -37,17 +35,17 @@ import { DetailImage } from "src/components/Shared/DetailImage";
 import { useRatingKeybinds } from "src/hooks/keybinds";
 import { useLoadStickyHeader } from "src/hooks/detailsPanel";
 import { useScrollToTopOnMount } from "src/hooks/scrollToTop";
-import { ExternalLink } from "src/components/Shared/ExternalLink";
+import { ExternalLinksButton } from "src/components/Shared/ExternalLinksButton";
 
 interface IProps {
-  movie: GQL.MovieDataFragment;
+  group: GQL.MovieDataFragment;
 }
 
-interface IMovieParams {
+interface IGroupParams {
   id: string;
 }
 
-const MoviePage: React.FC<IProps> = ({ movie }) => {
+const GroupPage: React.FC<IProps> = ({ group }) => {
   const intl = useIntl();
   const history = useHistory();
   const Toast = useToast();
@@ -72,35 +70,35 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   const [encodingImage, setEncodingImage] = useState<boolean>(false);
 
   const defaultImage =
-    movie.front_image_path && movie.front_image_path.includes("default=true")
+    group.front_image_path && group.front_image_path.includes("default=true")
       ? true
       : false;
 
   const lightboxImages = useMemo(() => {
     const covers = [
-      ...(movie.front_image_path && !defaultImage
+      ...(group.front_image_path && !defaultImage
         ? [
             {
               paths: {
-                thumbnail: movie.front_image_path,
-                image: movie.front_image_path,
+                thumbnail: group.front_image_path,
+                image: group.front_image_path,
               },
             },
           ]
         : []),
-      ...(movie.back_image_path
+      ...(group.back_image_path
         ? [
             {
               paths: {
-                thumbnail: movie.back_image_path,
-                image: movie.back_image_path,
+                thumbnail: group.back_image_path,
+                image: group.back_image_path,
               },
             },
           ]
         : []),
     ];
     return covers;
-  }, [movie.front_image_path, movie.back_image_path, defaultImage]);
+  }, [group.front_image_path, group.back_image_path, defaultImage]);
 
   const index = lightboxImages.length;
 
@@ -110,7 +108,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
 
   const [updateMovie, { loading: updating }] = useMovieUpdate();
   const [deleteMovie, { loading: deleting }] = useMovieDestroy({
-    id: movie.id,
+    id: group.id,
   });
 
   // set up hotkeys
@@ -137,7 +135,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     await updateMovie({
       variables: {
         input: {
-          id: movie.id,
+          id: group.id,
           ...input,
         },
       },
@@ -146,7 +144,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     Toast.success(
       intl.formatMessage(
         { id: "toast.updated_entity" },
-        { entity: intl.formatMessage({ id: "movie" }).toLocaleLowerCase() }
+        { entity: intl.formatMessage({ id: "group" }).toLocaleLowerCase() }
       )
     );
   }
@@ -159,7 +157,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     }
 
     // redirect to movies page
-    history.push(`/movies`);
+    history.push(`/groups`);
   }
 
   function toggleEditing(value?: boolean) {
@@ -189,8 +187,8 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
             id="dialogs.delete_confirm"
             values={{
               entityName:
-                movie.name ??
-                intl.formatMessage({ id: "movie" }).toLocaleLowerCase(),
+                group.name ??
+                intl.formatMessage({ id: "group" }).toLocaleLowerCase(),
             }}
           />
         </p>
@@ -218,7 +216,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   }
 
   function renderFrontImage() {
-    let image = movie.front_image_path;
+    let image = group.front_image_path;
     if (isEditing) {
       if (frontImage === null && image) {
         const imageURL = new URL(image);
@@ -231,14 +229,14 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
 
     if (image && defaultImage) {
       return (
-        <div className="movie-image-container">
+        <div className="group-image-container">
           <DetailImage alt="Front Cover" src={image} />
         </div>
       );
     } else if (image) {
       return (
         <Button
-          className="movie-image-container"
+          className="group-image-container"
           variant="link"
           onClick={() => showLightbox()}
         >
@@ -249,7 +247,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   }
 
   function renderBackImage() {
-    let image = movie.back_image_path;
+    let image = group.back_image_path;
     if (isEditing) {
       if (backImage === null) {
         image = undefined;
@@ -261,7 +259,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     if (image) {
       return (
         <Button
-          className="movie-image-container"
+          className="group-image-container"
           variant="link"
           onClick={() => showLightbox(index - 1)}
         >
@@ -273,35 +271,26 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
 
   const renderClickableIcons = () => (
     <span className="name-icons">
-      {movie.url && (
-        <Button
-          as={ExternalLink}
-          href={TextUtils.sanitiseURL(movie.url)}
-          className="minimal link"
-          title={movie.url}
-        >
-          <Icon icon={faLink} />
-        </Button>
-      )}
+      {group.urls.length > 0 && <ExternalLinksButton urls={group.urls} />}
     </span>
   );
 
   function maybeRenderAliases() {
-    if (movie?.aliases) {
+    if (group?.aliases) {
       return (
         <div>
-          <span className="alias-head">{movie?.aliases}</span>
+          <span className="alias-head">{group?.aliases}</span>
         </div>
       );
     }
   }
 
   function setRating(v: number | null) {
-    if (movie.id) {
+    if (group.id) {
       updateMovie({
         variables: {
           input: {
-            id: movie.id,
+            id: group.id,
             rating100: v,
           },
         },
@@ -309,13 +298,14 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     }
   }
 
-  const renderTabs = () => <MovieScenesPanel active={true} movie={movie} />;
+  const renderTabs = () => <GroupScenesPanel active={true} group={group} />;
 
   function maybeRenderDetails() {
     if (!isEditing) {
       return (
-        <MovieDetailsPanel
-          movie={movie}
+        <GroupDetailsPanel
+          group={group}
+          collapsed={collapsed}
           fullWidth={!collapsed && !compactExpandedDetails}
         />
       );
@@ -325,8 +315,8 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   function maybeRenderEditPanel() {
     if (isEditing) {
       return (
-        <MovieEditPanel
-          movie={movie}
+        <GroupEditPanel
+          group={group}
           onSubmit={onSave}
           onCancel={() => toggleEditing()}
           onDelete={onDelete}
@@ -339,7 +329,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
     {
       return (
         <DetailsEditNavbar
-          objectName={movie.name}
+          objectName={group.name}
           isNew={false}
           isEditing={isEditing}
           onToggleEdit={() => toggleEditing()}
@@ -353,12 +343,12 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
 
   function maybeRenderCompressedDetails() {
     if (!isEditing && loadStickyHeader) {
-      return <CompressedMovieDetailsPanel movie={movie} />;
+      return <CompressedMovieDetailsPanel group={group} />;
     }
   }
 
   function maybeRenderHeaderBackgroundImage() {
-    let image = movie.front_image_path;
+    let image = group.front_image_path;
     if (enableBackgroundImage && !isEditing && image) {
       const imageURL = new URL(image);
       let isDefaultImage = imageURL.searchParams.get("default");
@@ -370,7 +360,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
               <img
                 className="background-image"
                 src={image}
-                alt={`${movie.name} background`}
+                alt={`${group.name} background`}
               />
             </picture>
           </div>
@@ -394,9 +384,9 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   });
 
   return (
-    <div id="movie-page" className="row">
+    <div id="group-page" className="row">
       <Helmet>
-        <title>{movie?.name}</title>
+        <title>{group?.name}</title>
       </Helmet>
 
       <div className={headerClassName}>
@@ -409,7 +399,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
                   message={intl.formatMessage({ id: "actions.encoding_image" })}
                 />
               ) : (
-                <div className="movie-images">
+                <div className="group-images">
                   {renderFrontImage()}
                   {renderBackImage()}
                 </div>
@@ -417,15 +407,15 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
             </div>
           </div>
           <div className="row">
-            <div className="movie-head col">
+            <div className="group-head col">
               <h2>
-                <span className="movie-name">{movie.name}</span>
+                <span className="group-name">{group.name}</span>
                 {maybeRenderShowCollapseButton()}
                 {renderClickableIcons()}
               </h2>
               {maybeRenderAliases()}
               <RatingSystem
-                value={movie.rating100}
+                value={group.rating100}
                 onSetRating={(value) => setRating(value)}
                 clickToRate
                 withoutContext
@@ -438,8 +428,8 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
       </div>
       {maybeRenderCompressedDetails()}
       <div className="detail-body">
-        <div className="movie-body">
-          <div className="movie-tabs">{maybeRenderTab()}</div>
+        <div className="group-body">
+          <div className="group-tabs">{maybeRenderTab()}</div>
         </div>
       </div>
       {renderDeleteAlert()}
@@ -447,7 +437,7 @@ const MoviePage: React.FC<IProps> = ({ movie }) => {
   );
 };
 
-const MovieLoader: React.FC<RouteComponentProps<IMovieParams>> = ({
+const GroupLoader: React.FC<RouteComponentProps<IGroupParams>> = ({
   match,
 }) => {
   const { id } = match.params;
@@ -460,7 +450,7 @@ const MovieLoader: React.FC<RouteComponentProps<IMovieParams>> = ({
   if (!data?.findMovie)
     return <ErrorMessage error={`No movie found with id ${id}.`} />;
 
-  return <MoviePage movie={data.findMovie} />;
+  return <GroupPage group={data.findMovie} />;
 };
 
-export default MovieLoader;
+export default GroupLoader;
