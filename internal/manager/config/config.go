@@ -53,9 +53,11 @@ const (
 
 	Exclude      = "exclude"
 	ImageExclude = "image_exclude"
+	TextExclude  = "text_exclude"
 
 	VideoExtensions            = "video_extensions"
 	ImageExtensions            = "image_extensions"
+	TextExtensions             = "text_extensions"
 	GalleryExtensions          = "gallery_extensions"
 	CreateGalleriesFromFolders = "create_galleries_from_folders"
 
@@ -285,6 +287,7 @@ const (
 var (
 	defaultVideoExtensions   = []string{"m4v", "mp4", "mov", "wmv", "avi", "mpg", "mpeg", "rmvb", "rm", "flv", "asf", "mkv", "webm"}
 	defaultImageExtensions   = []string{"png", "jpg", "jpeg", "gif", "webp"}
+	defaultTextExtensions    = []string{"txt", "epub", "html"}
 	defaultGalleryExtensions = []string{"zip", "cbz"}
 	defaultMenuItems         = []string{"scenes", "images", "movies", "markers", "galleries", "performers", "studios", "tags"}
 )
@@ -742,6 +745,10 @@ func (i *Config) GetImageExcludes() []string {
 	return i.getStringSlice(ImageExclude)
 }
 
+func (i *Config) GetTextExcludes() []string {
+	return i.getStringSlice(TextExclude)
+}
+
 func (i *Config) GetVideoExtensions() []string {
 	ret := i.getStringSlice(VideoExtensions)
 	if len(ret) == 0 {
@@ -754,6 +761,14 @@ func (i *Config) GetImageExtensions() []string {
 	ret := i.getStringSlice(ImageExtensions)
 	if len(ret) == 0 {
 		ret = defaultImageExtensions
+	}
+	return ret
+}
+
+func (i *Config) GetTextExtensions() []string {
+	ret := i.getStringSlice(TextExtensions)
+	if len(ret) == 0 {
+		ret = defaultTextExtensions
 	}
 	return ret
 }

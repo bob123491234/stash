@@ -21,6 +21,7 @@ import (
 	"github.com/stashapp/stash/pkg/models/paths"
 	"github.com/stashapp/stash/pkg/scene"
 	"github.com/stashapp/stash/pkg/scene/generate"
+	"github.com/stashapp/stash/pkg/text"
 	"github.com/stashapp/stash/pkg/txn"
 )
 
@@ -89,6 +90,7 @@ func (j *ScanJob) Execute(ctx context.Context, progress *job.Progress) error {
 type extensionConfig struct {
 	vidExt []string
 	imgExt []string
+	txtExt []string
 	zipExt []string
 }
 
@@ -96,6 +98,7 @@ func newExtensionConfig(c *config.Config) extensionConfig {
 	return extensionConfig{
 		vidExt: c.GetVideoExtensions(),
 		imgExt: c.GetImageExtensions(),
+		txtExt: c.GetTextExtensions(),
 		zipExt: c.GetGalleryExtensions(),
 	}
 }
@@ -120,6 +123,7 @@ type handlerRequiredFilter struct {
 	txnManager     txn.Manager
 	SceneFinder    sceneFinder
 	ImageFinder    fileCounter
+	TextFinder     fileCounter
 	GalleryFinder  galleryFinder
 	CaptionUpdater video.CaptionUpdater
 
@@ -136,6 +140,7 @@ func newHandlerRequiredFilter(c *config.Config, repo models.Repository) *handler
 		txnManager:               repo.TxnManager,
 		SceneFinder:              repo.Scene,
 		ImageFinder:              repo.Image,
+		TextFinder:               repo.Text,
 		GalleryFinder:            repo.Gallery,
 		CaptionUpdater:           repo.File,
 		FolderCache:              lru.New(processes * 2),
@@ -147,6 +152,7 @@ func (f *handlerRequiredFilter) Accept(ctx context.Context, ff models.File) bool
 	path := ff.Base().Path
 	isVideoFile := useAsVideo(path)
 	isImageFile := useAsImage(path)
+	isTextFile := isText(path)
 	isZipFile := fsutil.MatchExtension(path, f.zipExt)
 
 	var counter fileCounter
@@ -157,6 +163,8 @@ func (f *handlerRequiredFilter) Accept(ctx context.Context, ff models.File) bool
 		counter = f.SceneFinder
 	case isImageFile:
 		counter = f.ImageFinder
+	case isTextFile:
+		counter = f.TextFinder
 	case isZipFile:
 		counter = f.GalleryFinder
 	}
@@ -253,6 +261,7 @@ type scanFilter struct {
 	generatedPath     string
 	videoExcludeRegex []*regexp.Regexp
 	imageExcludeRegex []*regexp.Regexp
+	textExcludeRegex  []*regexp.Regexp
 	minModTime        time.Time
 }
 
@@ -266,6 +275,7 @@ func newScanFilter(c *config.Config, repo models.Repository, minModTime time.Tim
 		generatedPath:     c.GetGeneratedPath(),
 		videoExcludeRegex: generateRegexps(c.GetExcludes()),
 		imageExcludeRegex: generateRegexps(c.GetImageExcludes()),
+		textExcludeRegex:  generateRegexps(c.GetTextExcludes()),
 		minModTime:        minModTime,
 	}
 }
@@ -289,6 +299,7 @@ func (f *scanFilter) Accept(ctx context.Context, path string, info fs.FileInfo) 
 
 	isVideoFile := useAsVideo(path)
 	isImageFile := useAsImage(path)
+	isTextFile := isText(path)
 	isZipFile := fsutil.MatchExtension(path, f.zipExt)
 
 	// handle caption files
@@ -300,7 +311,7 @@ func (f *scanFilter) Accept(ctx context.Context, path string, info fs.FileInfo) 
 		return false
 	}
 
-	if !info.IsDir() && !isVideoFile && !isImageFile && !isZipFile {
+	if !info.IsDir() && !isVideoFile && !isImageFile && !isTextFile && !isZipFile {
 		logger.Debugf("Skipping %s as it does not match any known file extensions", path)
 		return false
 	}
@@ -325,6 +336,9 @@ func (f *scanFilter) Accept(ctx context.Context, path string, info fs.FileInfo) 
 	} else if (isImageFile || isZipFile) && (s.ExcludeImage || matchFileRegex(path, f.imageExcludeRegex)) {
 		logger.Debugf("Skipping %s as it matches image exclusion patterns", path)
 		return false
+	} else if isTextFile && (s.ExcludeText || matchFileRegex(path, f.textExcludeRegex)) {
+		logger.Debugf("Skipping %s as it matches text exclusion patterns", path)
+		return false
 	}
 
 	return true
@@ -347,6 +361,10 @@ func videoFileFilter(ctx context.Context, f models.File) bool {
 
 func imageFileFilter(ctx context.Context, f models.File) bool {
 	return useAsImage(f.Base().Path)
+}
+
+func textFileFilter(ctx context.Context, f models.File) bool {
+	return isText(f.Base().Path)
 }
 
 func galleryFileFilter(ctx context.Context, f models.File) bool {
@@ -406,6 +424,13 @@ func getScanHandlers(options ScanMetadataInput, taskQueue *job.TaskQueue, progre
 				},
 				FileNamingAlgorithm: c.GetVideoFileNamingAlgorithm(),
 				Paths:               mgr.Paths,
+			},
+		},
+		&file.FilteredHandler{
+			Filter: file.FilterFunc(textFileFilter),
+			Handler: &text.ScanHandler{
+				CreatorUpdater: r.Text,
+				PluginCache:    pluginCache,
 			},
 		},
 	}

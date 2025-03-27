@@ -28,6 +28,11 @@ var (
 	scenesGroupsJoinTable     = goqu.T(groupsScenesTable)
 	scenesURLsJoinTable       = goqu.T(scenesURLsTable)
 
+	textsFilesJoinTable      = goqu.T(textsFilesTable)
+	textsTagsJoinTable       = goqu.T(textsTagsTable)
+	textsPerformersJoinTable = goqu.T(performersTextsTable)
+	textsURLsJoinTable       = goqu.T(textsURLsTable)
+
 	performersAliasesJoinTable  = goqu.T(performersAliasesTable)
 	performersURLsJoinTable     = goqu.T(performerURLsTable)
 	performersTagsJoinTable     = goqu.T(performersTagsTable)
@@ -213,6 +218,67 @@ var (
 			idColumn: goqu.T(scenesODatesTable).Col(sceneIDColumn),
 		},
 		dateColumn: goqu.T(scenesODatesTable).Col(sceneODateColumn),
+	}
+)
+
+var (
+	textTableMgr = &table{
+		table:    goqu.T(textTable),
+		idColumn: goqu.T(textTable).Col(idColumn),
+	}
+
+	textBookmarkTableMgr = &table{
+		table:    goqu.T(textBookmarkTable),
+		idColumn: goqu.T(textBookmarkTable).Col(idColumn),
+	}
+
+	textsFilesTableMgr = &relatedFilesTable{
+		table: table{
+			table:    textsFilesJoinTable,
+			idColumn: textsFilesJoinTable.Col(textIDColumn),
+		},
+	}
+
+	textsTagsTableMgr = &joinTable{
+		table: table{
+			table:    textsTagsJoinTable,
+			idColumn: textsTagsJoinTable.Col(textIDColumn),
+		},
+		fkColumn: textsTagsJoinTable.Col(tagIDColumn),
+	}
+
+	textsPerformersTableMgr = &joinTable{
+		table: table{
+			table:    textsPerformersJoinTable,
+			idColumn: textsPerformersJoinTable.Col(textIDColumn),
+		},
+		fkColumn: textsPerformersJoinTable.Col(performerIDColumn),
+	}
+
+	textsGalleriesTableMgr = galleriesScenesTableMgr.invert()
+
+	textsURLsTableMgr = &orderedValueTable[string]{
+		table: table{
+			table:    textsURLsJoinTable,
+			idColumn: textsURLsJoinTable.Col(textIDColumn),
+		},
+		valueColumn: textsURLsJoinTable.Col(textURLColumn),
+	}
+
+	textsViewTableMgr = &viewHistoryTable{
+		table: table{
+			table:    goqu.T(textsReadDatesTable),
+			idColumn: goqu.T(textsReadDatesTable).Col(textIDColumn),
+		},
+		dateColumn: goqu.T(textsReadDatesTable).Col(textReadDateColumn),
+	}
+
+	textsOTableMgr = &viewHistoryTable{
+		table: table{
+			table:    goqu.T(textsODatesTable),
+			idColumn: goqu.T(textsODatesTable).Col(textIDColumn),
+		},
+		dateColumn: goqu.T(textsODatesTable).Col(textODateColumn),
 	}
 )
 

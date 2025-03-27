@@ -115,6 +115,7 @@ type performerResolver struct{ *Resolver }
 type sceneResolver struct{ *Resolver }
 type sceneMarkerResolver struct{ *Resolver }
 type imageResolver struct{ *Resolver }
+type textResolver struct{ *Resolver }
 type studioResolver struct{ *Resolver }
 
 // movie is group under the hood

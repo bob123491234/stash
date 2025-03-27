@@ -118,6 +118,7 @@ func makeConfigGeneralResult() *ConfigGeneralResult {
 		LogAccess:                     config.GetLogAccess(),
 		VideoExtensions:               config.GetVideoExtensions(),
 		ImageExtensions:               config.GetImageExtensions(),
+		TextExtensions:                config.GetTextExtensions(),
 		GalleryExtensions:             config.GetGalleryExtensions(),
 		CreateGalleriesFromFolders:    config.GetCreateGalleriesFromFolders(),
 		Excludes:                      config.GetExcludes(),

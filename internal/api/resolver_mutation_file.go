@@ -128,6 +128,10 @@ func (r *mutationResolver) validateFileExtension(oldBasename, newBasename string
 		return err
 	}
 
+	if err := r.validateFileExtensionList(c.GetTextExtensions(), oldBasename, newBasename); err != nil {
+		return err
+	}
+
 	if err := r.validateFileExtensionList(c.GetGalleryExtensions(), oldBasename, newBasename); err != nil {
 		return err
 	}

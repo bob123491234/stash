@@ -18,6 +18,14 @@ const (
 	ImageUpdatePost  TriggerEnum = "Image.Update.Post"
 	ImageDestroyPost TriggerEnum = "Image.Destroy.Post"
 
+	TextCreatePost  TriggerEnum = "Text.Create.Post"
+	TextUpdatePost  TriggerEnum = "Text.Update.Post"
+	TextDestroyPost TriggerEnum = "Text.Destroy.Post"
+
+	TextBookmarkCreatePost  TriggerEnum = "TextBookmark.Create.Post"
+	TextBookmarkUpdatePost  TriggerEnum = "TextBookmark.Update.Post"
+	TextBookmarkDestroyPost TriggerEnum = "TextBookmark.Destroy.Post"
+
 	GalleryCreatePost  TriggerEnum = "Gallery.Create.Post"
 	GalleryUpdatePost  TriggerEnum = "Gallery.Update.Post"
 	GalleryDestroyPost TriggerEnum = "Gallery.Destroy.Post"
@@ -103,6 +111,14 @@ func (e TriggerEnum) IsValid() bool {
 		ImageCreatePost,
 		ImageUpdatePost,
 		ImageDestroyPost,
+
+		TextCreatePost,
+		TextUpdatePost,
+		TextDestroyPost,
+
+		TextBookmarkCreatePost,
+		TextBookmarkUpdatePost,
+		TextBookmarkDestroyPost,
 
 		GalleryCreatePost,
 		GalleryUpdatePost,
