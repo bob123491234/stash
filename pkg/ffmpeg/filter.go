@@ -37,14 +37,14 @@ func (f VideoFilter) ScaleMaxSize(maxDimensions int) VideoFilter {
 }
 
 // ScaleDownToMax returns a VideoFilter scaling down to maxDimensions without upscaling lower resolutions
-func (f VideoFilter) ScaleDownToMax(maxDimensions int) VideoFilter {
-	if maxDimensions <= 0 {
+func (f VideoFilter) ScaleDownToMax(maxDimension int) VideoFilter {
+	if maxDimension <= 0 {
 		return f
 	}
 	filter := fmt.Sprintf(
 		"scale='min(%d,iw)':'min(%d,ih)':force_original_aspect_ratio=decrease,"+
 			"pad=ceil(iw/2)*2:ceil(ih/2)*2:(ow-iw)/2:(oh-ih)/2",
-		maxDimensions, maxDimensions,
+		maxDimension, maxDimension,
 	)
 	return f.Append(filter)
 }

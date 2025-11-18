@@ -44,7 +44,7 @@ export const VideoPreviewInput: React.FC<IVideoPreviewInput> = ({
       <Form.Group id="preview-max-dimension">
         <h6>
           {intl.formatMessage({
-            id: "dialogs.scene_gen.preview-max-dimension_head",
+            id: "dialogs.scene_gen.preview_max_dimension_head",
           })}
         </h6>
         <NumberField
@@ -62,7 +62,7 @@ export const VideoPreviewInput: React.FC<IVideoPreviewInput> = ({
         />
         <Form.Text className="text-muted">
           {intl.formatMessage({
-            id: "dialogs.scene_gen.preview-max-dimension_desc",
+            id: "dialogs.scene_gen.preview_max_dimension_desc",
           })}
         </Form.Text>
       </Form.Group>
