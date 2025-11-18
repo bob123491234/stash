@@ -69,6 +69,9 @@ export const GenerateDialog: React.FC<ISceneGenerateDialog> = ({
         ...existing,
         previewOptions: {
           ...existing.previewOptions,
+          previewMaxDimension:
+            general.previewMaxDimension ??
+            existing.previewOptions?.previewMaxDimension,
           previewSegments:
             general.previewSegments ?? existing.previewOptions?.previewSegments,
           previewSegmentDuration:

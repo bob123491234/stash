@@ -89,6 +89,9 @@ const (
 	PreviewAudio        = "preview_audio"
 	previewAudioDefault = true
 
+	PreviewMaxDimension        = "preview_max_dimension"
+	previewMaxDimensionDefault = 640
+
 	PreviewSegmentDuration        = "preview_segment_duration"
 	previewSegmentDurationDefault = 0.75
 
@@ -960,6 +963,11 @@ func (i *Config) GetPreviewAudio() bool {
 	return i.getBool(PreviewAudio)
 }
 
+// GetPreviewMaxDimension returns the maximum dimension of a scene preview file.
+func (i *Config) GetPreviewMaxDimension() int {
+	return i.getInt(PreviewMaxDimension)
+}
+
 // GetPreviewSegments returns the amount of segments in a scene preview file.
 func (i *Config) GetPreviewSegments() int {
 	return i.getInt(PreviewSegments)
@@ -1769,6 +1777,7 @@ func (i *Config) setDefaultValues() {
 
 	i.setDefault(ParallelTasks, parallelTasksDefault)
 	i.setDefault(SequentialScanning, SequentialScanningDefault)
+	i.setDefault(PreviewMaxDimension, previewMaxDimensionDefault)
 	i.setDefault(PreviewSegmentDuration, previewSegmentDurationDefault)
 	i.setDefault(PreviewSegments, previewSegmentsDefault)
 	i.setDefault(PreviewExcludeStart, previewExcludeStartDefault)

@@ -25,6 +25,7 @@ const (
 )
 
 type PreviewOptions struct {
+	MaxDimension    int
 	Segments        int
 	SegmentDuration float64
 	ExcludeStart    string
@@ -124,11 +125,12 @@ func (g *Generator) previewVideo(input string, videoDuration float64, options Pr
 			time := offset + (float64(i) * stepSize)
 
 			chunkOptions := previewChunkOptions{
-				StartTime:  time,
-				Duration:   segmentDuration,
-				OutputPath: chunkFile.Name(),
-				Audio:      options.Audio,
-				Preset:     options.Preset,
+				MaxDimension: options.MaxDimension,
+				StartTime:    time,
+				Duration:     segmentDuration,
+				OutputPath:   chunkFile.Name(),
+				Audio:        options.Audio,
+				Preset:       options.Preset,
 			}
 
 			if err := g.previewVideoChunk(lockCtx, input, chunkOptions, fallback, useVsync2); err != nil {
@@ -153,11 +155,12 @@ func (g *Generator) previewVideo(input string, videoDuration float64, options Pr
 func (g *Generator) previewVideoSingle(input string, videoDuration float64, options PreviewOptions, fallback bool, useVsync2 bool) generateFn {
 	return func(lockCtx *fsutil.LockContext, tmpFn string) error {
 		chunkOptions := previewChunkOptions{
-			StartTime:  0,
-			Duration:   videoDuration,
-			OutputPath: tmpFn,
-			Audio:      options.Audio,
-			Preset:     options.Preset,
+			MaxDimension: options.MaxDimension,
+			StartTime:    0,
+			Duration:     videoDuration,
+			OutputPath:   tmpFn,
+			Audio:        options.Audio,
+			Preset:       options.Preset,
 		}
 
 		return g.previewVideoChunk(lockCtx, input, chunkOptions, fallback, useVsync2)
@@ -165,16 +168,17 @@ func (g *Generator) previewVideoSingle(input string, videoDuration float64, opti
 }
 
 type previewChunkOptions struct {
-	StartTime  float64
-	Duration   float64
-	OutputPath string
-	Audio      bool
-	Preset     string
+	MaxDimension int
+	StartTime    float64
+	Duration     float64
+	OutputPath   string
+	Audio        bool
+	Preset       string
 }
 
 func (g Generator) previewVideoChunk(lockCtx *fsutil.LockContext, fn string, options previewChunkOptions, fallback bool, useVsync2 bool) error {
 	var videoFilter ffmpeg.VideoFilter
-	videoFilter = videoFilter.ScaleWidth(scenePreviewWidth)
+	videoFilter = videoFilter.ScaleDownToMax(options.MaxDimension)
 
 	var videoArgs ffmpeg.Args
 	videoArgs = videoArgs.VideoFilter(videoFilter)

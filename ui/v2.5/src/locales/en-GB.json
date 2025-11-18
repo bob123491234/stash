@@ -978,6 +978,8 @@
       "overwrite": "Overwrite existing files",
       "phash": "Perceptual hashes",
       "phash_tooltip": "For deduplication and scene identification",
+      "preview-max-dimension_desc": "Dimension of the longest side of the preview video.",
+      "preview-max-dimension_head": "Maximum preview dimension",
       "preview_exclude_end_time_desc": "Exclude the last x seconds from scene previews. This can be a value in seconds, or a percentage (eg 2%) of the total scene duration.",
       "preview_exclude_end_time_head": "Exclude end time",
       "preview_exclude_start_time_desc": "Exclude the first x seconds from scene previews. This can be a value in seconds, or a percentage (eg 2%) of the total scene duration.",

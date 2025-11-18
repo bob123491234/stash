@@ -6,6 +6,7 @@ import { NumberField } from "src/utils/form";
 
 export type VideoPreviewSettingsInput = Pick<
   GQL.ConfigGeneralInput,
+  | "previewMaxDimension"
   | "previewSegments"
   | "previewSegmentDuration"
   | "previewExcludeStart"
@@ -31,6 +32,7 @@ export const VideoPreviewInput: React.FC<IVideoPreviewInput> = ({
   }
 
   const {
+    previewMaxDimension,
     previewSegments,
     previewSegmentDuration,
     previewExcludeStart,
@@ -39,6 +41,32 @@ export const VideoPreviewInput: React.FC<IVideoPreviewInput> = ({
 
   return (
     <div>
+      <Form.Group id="preview-max-dimension">
+        <h6>
+          {intl.formatMessage({
+            id: "dialogs.scene_gen.preview-max-dimension_head",
+          })}
+        </h6>
+        <NumberField
+          className="text-input"
+          value={previewMaxDimension?.toString() ?? 0}
+          min={0}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            set({
+              previewMaxDimension: Number.parseInt(
+                e.currentTarget.value || "0",
+                10
+              ),
+            })
+          }
+        />
+        <Form.Text className="text-muted">
+          {intl.formatMessage({
+            id: "dialogs.scene_gen.preview-max-dimension_desc",
+          })}
+        </Form.Text>
+      </Form.Group>
+
       <Form.Group id="preview-segments">
         <h6>
           {intl.formatMessage({

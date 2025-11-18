@@ -274,6 +274,9 @@ export const LibraryTasks: React.FC = () => {
         ...generateOptions,
         previewOptions: {
           ...generateOptions.previewOptions,
+          previewMaxDimension:
+            general?.previewMaxDimension ??
+            generateOptions.previewOptions?.previewMaxDimension,
           previewSegments:
             general?.previewSegments ??
             generateOptions.previewOptions?.previewSegments,

@@ -25,6 +25,8 @@ input GenerateMetadataInput {
 }
 
 input GeneratePreviewOptionsInput {
+  "Maximum dimension of a preview video"
+  previewMaxDimension: Int
   "Number of segments in a preview file"
   previewSegments: Int
   "Preview segment duration, in seconds"
@@ -54,6 +56,8 @@ type GenerateMetadataOptions {
 }
 
 type GeneratePreviewOptions {
+  "Maximum dimension of a preview video"
+  previewMaxDimension: Int
   "Number of segments in a preview file"
   previewSegments: Int
   "Preview segment duration, in seconds"

@@ -41,6 +41,8 @@ type GenerateMetadataInput struct {
 }
 
 type GeneratePreviewOptionsInput struct {
+	// Maximum dimension of a preview video
+	PreviewMaxDimension *int `json:"previewMaxDimension"`
 	// Number of segments in a preview file
 	PreviewSegments *int `json:"previewSegments"`
 	// Preview segment duration, in seconds
@@ -320,12 +322,17 @@ func getGeneratePreviewOptions(optionsInput GeneratePreviewOptionsInput) generat
 	config := config.GetInstance()
 
 	ret := generate.PreviewOptions{
+		MaxDimension:    config.GetPreviewMaxDimension(),
 		Segments:        config.GetPreviewSegments(),
 		SegmentDuration: config.GetPreviewSegmentDuration(),
 		ExcludeStart:    config.GetPreviewExcludeStart(),
 		ExcludeEnd:      config.GetPreviewExcludeEnd(),
 		Preset:          config.GetPreviewPreset().String(),
 		Audio:           config.GetPreviewAudio(),
+	}
+
+	if optionsInput.PreviewMaxDimension != nil {
+		ret.Segments = *optionsInput.PreviewMaxDimension
 	}
 
 	if optionsInput.PreviewSegments != nil {

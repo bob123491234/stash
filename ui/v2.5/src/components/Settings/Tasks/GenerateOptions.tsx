@@ -66,6 +66,7 @@ export const GenerateOptions: React.FC<IGenerateOptions> = ({
               headingID="dialogs.scene_gen.override_preview_generation_options"
               tooltipID="dialogs.scene_gen.override_preview_generation_options_desc"
               value={{
+                previewMaxDimension: previewOptions.previewMaxDimension,
                 previewExcludeEnd: previewOptions.previewExcludeEnd,
                 previewExcludeStart: previewOptions.previewExcludeStart,
                 previewSegmentDuration: previewOptions.previewSegmentDuration,

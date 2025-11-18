@@ -19,6 +19,7 @@ fragment ConfigGeneralData on ConfigGeneralResult {
   videoFileNamingAlgorithm
   parallelTasks
   previewAudio
+  previewMaxDimension
   previewSegments
   previewSegmentDuration
   previewExcludeStart
@@ -188,6 +189,7 @@ fragment ConfigDefaultSettingsData on ConfigDefaultSettingsResult {
     previews
     imagePreviews
     previewOptions {
+      previewMaxDimension
       previewSegments
       previewSegmentDuration
       previewExcludeStart

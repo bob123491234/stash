@@ -66,6 +66,7 @@ func TestConcurrentConfigAccess(t *testing.T) {
 				i.SetInterface(ParallelTasks, i.GetParallelTasks())
 				i.SetInterface(ParallelTasks, i.GetParallelTasksWithAutoDetection())
 				i.SetInterface(PreviewAudio, i.GetPreviewAudio())
+				i.SetInterface(PreviewMaxDimension, i.GetPreviewMaxDimension())
 				i.SetInterface(PreviewSegments, i.GetPreviewSegments())
 				i.SetInterface(PreviewExcludeStart, i.GetPreviewExcludeStart())
 				i.SetInterface(PreviewExcludeEnd, i.GetPreviewExcludeEnd())

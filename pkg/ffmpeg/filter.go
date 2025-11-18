@@ -36,6 +36,19 @@ func (f VideoFilter) ScaleMaxSize(maxDimensions int) VideoFilter {
 	return f.Append(fmt.Sprintf("scale=%v:%v:force_original_aspect_ratio=decrease", maxDimensions, maxDimensions))
 }
 
+// ScaleDownToMax returns a VideoFilter scaling down to maxDimensions without upscaling lower resolutions
+func (f VideoFilter) ScaleDownToMax(maxDimensions int) VideoFilter {
+	if maxDimensions <= 0 {
+		return f
+	}
+	filter := fmt.Sprintf(
+		"scale='min(%d,iw)':'min(%d,ih)':force_original_aspect_ratio=decrease,"+
+			"pad=ceil(iw/2)*2:ceil(ih/2)*2:(ow-iw)/2:(oh-ih)/2",
+		maxDimensions, maxDimensions,
+	)
+	return f.Append(filter)
+}
+
 // ScaleMax returns a VideoFilter scaling to maxSize. It will scale width if it is larger than height, otherwise it will scale height.
 func (f VideoFilter) ScaleMax(inputWidth, inputHeight, maxSize int) VideoFilter {
 	// get the smaller dimension of the input

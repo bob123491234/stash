@@ -404,6 +404,7 @@ export const SettingsConfigurationPanel: React.FC = () => {
           id="video-preview-settings"
           headingID="dialogs.scene_gen.preview_generation_options"
           value={{
+            previewMaxDimension: general.previewMaxDimension,
             previewExcludeEnd: general.previewExcludeEnd,
             previewExcludeStart: general.previewExcludeStart,
             previewSegmentDuration: general.previewSegmentDuration,

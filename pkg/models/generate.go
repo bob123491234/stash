@@ -23,6 +23,8 @@ type GenerateMetadataOptions struct {
 }
 
 type GeneratePreviewOptions struct {
+	// Maximum dimension of a preview video
+	PreviewMaxDimension *int `json:"previewMaxDimension"`
 	// Number of segments in a preview file
 	PreviewSegments *int `json:"previewSegments"`
 	// Preview segment duration, in seconds

@@ -93,6 +93,8 @@ input ConfigGeneralInput {
   parallelTasks: Int
   "Include audio stream in previews"
   previewAudio: Boolean
+  "Maximum dimension of a preview video"
+  previewMaxDimension: Int
   "Number of segments in a preview file"
   previewSegments: Int
   "Preview segment duration, in seconds"
@@ -215,6 +217,8 @@ type ConfigGeneralResult {
   parallelTasks: Int!
   "Include audio stream in previews"
   previewAudio: Boolean!
+  "Maximum dimension of a preview video"
+  previewMaxDimension: Int!
   "Number of segments in a preview file"
   previewSegments: Int!
   "Preview segment duration, in seconds"

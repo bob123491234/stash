@@ -96,6 +96,7 @@ func makeConfigGeneralResult() *ConfigGeneralResult {
 		VideoFileNamingAlgorithm:      config.GetVideoFileNamingAlgorithm(),
 		ParallelTasks:                 config.GetParallelTasks(),
 		PreviewAudio:                  config.GetPreviewAudio(),
+		PreviewMaxDimension:           config.GetPreviewMaxDimension(),
 		PreviewSegments:               config.GetPreviewSegments(),
 		PreviewSegmentDuration:        config.GetPreviewSegmentDuration(),
 		PreviewExcludeStart:           config.GetPreviewExcludeStart(),
