@@ -116,6 +116,7 @@ func makeConfigGeneralResult() *ConfigGeneralResult {
 		LogOut:                        config.GetLogOut(),
 		LogLevel:                      config.GetLogLevel(),
 		LogAccess:                     config.GetLogAccess(),
+		LogFileMaxSize:                config.GetLogFileMaxSize(),
 		VideoExtensions:               config.GetVideoExtensions(),
 		ImageExtensions:               config.GetImageExtensions(),
 		GalleryExtensions:             config.GetGalleryExtensions(),
@@ -163,6 +164,7 @@ func makeConfigInterfaceResult() *ConfigInterfaceResult {
 	disableDropdownCreate := config.GetDisableDropdownCreate()
 
 	return &ConfigInterfaceResult{
+		SfwContentMode:               config.GetSFWContentMode(),
 		MenuItems:                    menuItems,
 		SoundOnPreview:               &soundOnPreview,
 		WallShowTitle:                &wallShowTitle,
